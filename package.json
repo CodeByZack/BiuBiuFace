@@ -43,7 +43,7 @@
     "js-binary-schema-parser": "^2.0.0",
     "react": "^16.10.0",
     "react-dom": "^16.10.0",
-    "taro-ui": "^2.3.4"
+    "taro-ui": "^3.0.0-alpha.3"
   },
   "devDependencies": {
     "@types/webpack-env": "^1.13.6",

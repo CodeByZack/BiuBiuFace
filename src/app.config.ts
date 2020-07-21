@@ -1,13 +1,18 @@
 export default {
   pages: [
     'pages/index/index',
+    'pages/gif/gif',
     'pages/user/user'
   ],
   tabBar:{
     list:[
       {
+        pagePath:"pages/gif/gif",
+        text:"动图"
+      },
+      {
         pagePath:"pages/index/index",
-        text:"首页"
+        text:"demo"
       },
       {
         pagePath:"pages/user/user",
