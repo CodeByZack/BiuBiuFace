@@ -1,86 +1,32 @@
-import React, { Component, useEffect,useRef } from "react";
-import { View, Text, Canvas } from "@tarojs/components";
-import Taro, { useReady } from '@tarojs/taro';
-import { parseGIF, decompressFrames } from '../../lib/gif';
-import "./index.scss";
+import React, { Component } from 'react'
+import { View, Text } from '@tarojs/components'
+import { AtButton } from 'taro-ui'
 
-const Index = () => {
-  const canvasRef = useRef();
+import "taro-ui/dist/style/components/button.scss" // 按需引入
+import './index.scss'
 
-  const drawGif = ( ctx, frames, canvas ) => {
-    let frameIndex = 0;
-    let frame = frames[frameIndex];
-    let frameImageData ;
+export default class Index extends Component {
 
+  componentWillMount () { }
 
-    const drawFrame = ()=>{
-      var start = new Date().getTime()
-      const dims = frame.dims;
-      if (
-        !frameImageData ||
-        dims.width != frameImageData.width ||
-        dims.height != frameImageData.height
-      ) {
-        // ctx.width = dims.width
-        // ctx.height = dims.height
-        frameImageData = ctx.createImageData(dims.width, dims.height);
-      }
-      // set the patch data as an override
-      frameImageData.data.set(frame.patch)
-      // draw the patch back over the canvas
-      ctx.putImageData(frameImageData, 0, 0)
+  componentDidMount () { }
 
-      frameIndex = frameIndex+1>=frames.length?0:frameIndex+1;
-      console.log(frameIndex);
-      frame = frames[frameIndex];
-      var end = new Date().getTime()
-      var diff = end - start
+  componentWillUnmount () { }
 
-      setTimeout(()=>{
-        canvas.requestAnimationFrame(drawFrame);
-      },Math.max(0, Math.floor(frame.delay - diff)))
-    }
+  componentDidShow () { }
 
-    drawFrame();
+  componentDidHide () { }
 
+  render () {
+    return (
+      <View className='index'>
+        <Text>Hello world!</Text>
+        <AtButton type='primary'>I need Taro UI</AtButton>
+        <Text>Taro UI 支持 Vue 了吗？</Text>
+        <AtButton type='primary' circle={true}>支持</AtButton>
+        <Text>共建？</Text>
+        <AtButton type='secondary' circle={true}>来</AtButton>
+      </View>
+    )
   }
-
-  useReady(() => {
-    const query = Taro.createSelectorQuery();
-    query.select('#canvas')
-      .fields({ node: true, size: true })
-      .exec((res) => {
-        console.log(res);
-        const canvas = res[0].node
-        const ctx = canvas.getContext('2d')
-        const dpr = Taro.getSystemInfoSync().pixelRatio
-        canvas.width = res[0].width * dpr
-        canvas.height = res[0].height * dpr
-        ctx.scale(dpr, dpr)
-        const getGif = async ()=>{
-
-          const res2 = await Taro.request({url: "http://127.0.0.1:5500/demo/horses.gif",responseType:"arraybuffer"})
-          console.log(res2);
-          const gif = parseGIF(res2.data)
-          console.log(gif);
-          var frames = decompressFrames(gif, true)
-          // render the gif
-          console.log(frames);
-          drawGif(ctx,frames,canvas)
-        };
-        getGif();
-
-      })
-  })
-
-
-
-  return (
-    <View className="index">
-      <Text>Hello world!</Text>
-      <Canvas ref={canvasRef} type="2d" id="canvas" />
-    </View>
-  );
-};
-
-export default Index;
+}
