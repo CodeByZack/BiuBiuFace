@@ -1,5 +1,5 @@
 import React, { Component, useState, useEffect } from 'react'
-import { View, Text, Canvas, Button } from '@tarojs/components'
+import { View, Text, Canvas, Button, Slider } from '@tarojs/components'
 import Taro,{ useReady, useReachBottom } from '@tarojs/taro' // Taro 专有 Hooks
 import minigif from '../../libs/mini-gif.esm';
 import './index.scss';
@@ -50,13 +50,15 @@ const useGif = (arrayBuffer) => {
   return { gifInfo, gifFrames };
 };
 
+enum PLAY_STATUS { 'STOP','PLAY' };
+
 const GIF = ()=>{
   const [canvasObj,setCanvasObj] = useState<any>();
   const [arrBuf,setArrBuf] = useState();
   const { gifInfo, gifFrames } = useGif(arrBuf);
   const [nowFrame,setNowFrame] = useState(0);
+  const [playStatus,setPlayStatus] = useState<PLAY_STATUS>(PLAY_STATUS.STOP);
 
-  console.log(canvasObj);
   useReady(() => {
     const query = Taro.createSelectorQuery()
     query.select('#myCanvas')
@@ -74,21 +76,33 @@ const GIF = ()=>{
 
   useEffect(()=>{
     if(gifInfo && canvasObj){
-      const { canvas,ctx,dpr } = canvasObj;
-      console.log(gifInfo)
-      const a = canvas.createImageData(gifFrames[0].data,gifInfo.width,gifInfo.height);
-      console.log(a);
-      ctx.putImageData(a,0,0);
+      drawFrame();
+      setPlayStatus(PLAY_STATUS.PLAY);
     };
   },[gifInfo, gifFrames])
 
-  const drawFrame = ()=>{
+  useEffect(()=>{
+    drawFrame();
+  },[nowFrame]);
 
+  
+  useEffect(()=>{
+    if(playStatus===PLAY_STATUS.PLAY){
+      drawFrame();
+    }
+  },[playStatus]);
+
+  const drawFrame = ()=>{
+    if(!gifInfo || !canvasObj)return;
+    if(playStatus === PLAY_STATUS.STOP)return;
     const { canvas,ctx,dpr } = canvasObj;
     const frame = gifFrames[nowFrame];
     const a = canvas.createImageData(frame.data,gifInfo.width,gifInfo.height);
     ctx.putImageData(a,0,0);
-
+    
+    setTimeout(()=>{
+      setNowFrame(nowFrame+1>=gifInfo.numFrames?0:nowFrame+1);
+    },frame.delay);
 
   };
 
@@ -120,10 +134,23 @@ const GIF = ()=>{
     })
   };
 
+  const changeStatus = ()=>{
+    if(playStatus === PLAY_STATUS.PLAY){
+      setPlayStatus(PLAY_STATUS.STOP);
+    }else{
+      drawFrame();
+      setPlayStatus(PLAY_STATUS.PLAY);
+    }
+  };
+
   return <View>
     <Text>gif page</Text>
     <Button onClick={choose}>点击选择图片</Button>
-    <Canvas className="canvas"  type="2d" id="myCanvas" canvas-id="myCanvas"  />
+    <View className="center">
+      <Canvas className="canvas"  type="2d" id="myCanvas" canvas-id="myCanvas"  />
+    </View>
+    {gifInfo && <Slider showValue max={gifInfo.numFrames}/>}
+    <Button onClick={changeStatus}>{playStatus}</Button>
   </View>
 };
 

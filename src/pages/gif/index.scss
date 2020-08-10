@@ -1,5 +1,9 @@
 .canvas{
   box-sizing: border-box;
-  width: 100%;
+  // width: 100%;
   border: 1px solid #333;
+}
+.center{
+  display: flex;
+  justify-content: center;
 }
